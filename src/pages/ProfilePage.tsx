@@ -1,14 +1,11 @@
-import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, BarChart2, CheckSquare, Map, BrainCircuit, FileText, Link as LinkIcon, Loader } from 'lucide-react';
+import { User, BarChart2, CheckSquare, Map, BrainCircuit, FileText, Link as LinkIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { mockRoadmap } from '@/lib/mock-data';
+import { mockUser, mockStats, mockRoadmap } from '@/lib/mock-data';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useAppStore } from '@/stores/useAppStore';
-import type { KnowledgeNode } from '@/types/knowledge';
 const StatCard = ({ icon, title, value, change }: { icon: React.ReactNode, title: string, value: string, change?: string }) => (
   <Card className="shadow-sm hover:shadow-md transition-shadow duration-300 border-border/50">
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -21,49 +18,8 @@ const StatCard = ({ icon, title, value, change }: { icon: React.ReactNode, title
     </CardContent>
   </Card>
 );
-const calculateStats = (nodes: KnowledgeNode[], links: any[]) => {
-  const contentByType = nodes.reduce((acc, node) => {
-    const type = node.type.charAt(0).toUpperCase() + node.type.slice(1) + 's';
-    acc[type] = (acc[type] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-  return {
-    totalNodes: nodes.length,
-    contentItems: nodes.length,
-    connections: links.length,
-    avgConnections: nodes.length > 0 ? (links.length * 2) / nodes.length : 0,
-    contentByType,
-  };
-};
 export function ProfilePage() {
-  const { user, graph, fetchGraph, isLoading, error } = useAppStore(state => ({
-    user: state.user,
-    graph: state.graph,
-    fetchGraph: state.fetchGraph,
-    isLoading: state.isLoading,
-    error: state.error,
-  }));
-  useEffect(() => {
-    if (graph.nodes.length === 0) {
-      fetchGraph();
-    }
-  }, [fetchGraph, graph.nodes.length]);
-  if (isLoading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <Loader className="w-8 h-8 animate-spin text-cortex-primary" />
-      </div>
-    );
-  }
-  if (error) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <p className="text-destructive-foreground bg-destructive p-4 rounded-md">Error: {error}</p>
-      </div>
-    );
-  }
-  const stats = calculateStats(graph.nodes, graph.links);
-  const chartData = Object.entries(stats.contentByType).map(([name, value]) => ({ name, value }));
+  const chartData = Object.entries(mockStats.contentByType).map(([name, value]) => ({ name, value }));
   return (
     <div className="h-full flex flex-col p-4 md:p-6 lg:p-8 overflow-y-auto">
       <motion.div
@@ -86,12 +42,12 @@ export function ProfilePage() {
         <Card className="border-border/50">
           <CardContent className="p-6 flex items-center gap-6">
             <Avatar className="h-20 w-20">
-              <AvatarImage src={`https://i.pravatar.cc/150?u=${user.email}`} alt={user.name} />
-              <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+              <AvatarImage src={mockUser.avatarUrl} alt={mockUser.name} />
+              <AvatarFallback>{mockUser.name.charAt(0)}</AvatarFallback>
             </Avatar>
             <div>
-              <h2 className="text-2xl font-bold">{user.name}</h2>
-              <p className="text-muted-foreground">{user.email}</p>
+              <h2 className="text-2xl font-bold">{mockUser.name}</h2>
+              <p className="text-muted-foreground">{mockUser.email}</p>
               <Badge variant="secondary" className="mt-2">Pro Member</Badge>
             </div>
           </CardContent>
@@ -99,10 +55,10 @@ export function ProfilePage() {
         <section>
           <h2 className="text-xl font-display font-bold mb-4">Statistics</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <StatCard icon={<BrainCircuit className="h-4 w-4 text-muted-foreground" />} title="Total Nodes" value={stats.totalNodes.toString()} />
-            <StatCard icon={<FileText className="h-4 w-4 text-muted-foreground" />} title="Content Items" value={stats.contentItems.toString()} />
-            <StatCard icon={<LinkIcon className="h-4 w-4 text-muted-foreground" />} title="Connections" value={stats.connections.toString()} />
-            <StatCard icon={<BarChart2 className="h-4 w-4 text-muted-foreground" />} title="Avg. Connections" value={stats.avgConnections.toFixed(1)} />
+            <StatCard icon={<BrainCircuit className="h-4 w-4 text-muted-foreground" />} title="Total Nodes" value={mockStats.totalNodes.toString()} change="+5 this week" />
+            <StatCard icon={<FileText className="h-4 w-4 text-muted-foreground" />} title="Content Items" value={mockStats.contentItems.toString()} change="+2 this week" />
+            <StatCard icon={<LinkIcon className="h-4 w-4 text-muted-foreground" />} title="Connections" value={mockStats.connections.toString()} />
+            <StatCard icon={<BarChart2 className="h-4 w-4 text-muted-foreground" />} title="Avg. Connections" value={mockStats.avgConnections.toFixed(1)} />
           </div>
         </section>
         <div className="grid md:grid-cols-2 gap-8">

@@ -5,14 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAppStore } from '@/stores/useAppStore';
+import { useCortexStore } from '@/stores/useCortexStore';
 export function LoginPage() {
   const navigate = useNavigate();
-  const login = useAppStore((state) => state.login);
+  const login = useCortexStore((state) => state.login);
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     login();
-    navigate('/app');
+    navigate('/');
   };
   return (
     <div className="min-h-screen flex items-center justify-center bg-cortex-light dark:bg-cortex-dark p-4">

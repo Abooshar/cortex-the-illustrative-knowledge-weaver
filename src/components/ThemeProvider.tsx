@@ -6,7 +6,7 @@ type ThemeProviderState = {
   toggleTheme: () => void;
   isDark: boolean;
 };
-const ThemeProviderContext = createContext<ThemeProviderState | undefined>(undefined);
+export const ThemeProviderContext = createContext<ThemeProviderState | undefined>(undefined);
 export function ThemeProvider({
   children,
   defaultTheme = 'system',
@@ -17,10 +17,14 @@ export function ThemeProvider({
   storageKey?: string;
 }) {
   const [theme, setTheme] = useState<Theme>(() => {
-    const storedTheme = localStorage.getItem(storageKey) as Theme | null;
-    if (storedTheme) return storedTheme;
-    if (defaultTheme === 'system') {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    try {
+      const storedTheme = localStorage.getItem(storageKey) as Theme | null;
+      if (storedTheme) return storedTheme;
+      if (defaultTheme === 'system') {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+    } catch (e) {
+      // localStorage is not available
     }
     return defaultTheme as Theme;
   });
@@ -28,7 +32,11 @@ export function ThemeProvider({
     const root = window.document.documentElement;
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
-    localStorage.setItem(storageKey, theme);
+    try {
+      localStorage.setItem(storageKey, theme);
+    } catch (e) {
+      // localStorage is not available
+    }
   }, [theme, storageKey]);
   const toggleTheme = () => {
     setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));

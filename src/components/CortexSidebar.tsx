@@ -1,8 +1,9 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { BrainCircuit, Sparkles, FolderKanban, User, Settings, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useCortexStore } from '@/stores/useCortexStore';
 const navItems = [
   { to: '/', icon: BrainCircuit, label: 'Neural View' },
   { to: '/search', icon: Sparkles, label: 'AI Search' },
@@ -13,6 +14,12 @@ const bottomNavItems = [
   { to: '/settings', icon: Settings, label: 'Settings' },
 ];
 export function CortexSidebar() {
+  const navigate = useNavigate();
+  const logout = useCortexStore((state) => state.logout);
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
   const activeLinkClass = "bg-cortex-primary/10 text-cortex-primary dark:bg-cortex-primary/20";
   const inactiveLinkClass = "text-muted-foreground hover:bg-muted hover:text-foreground";
   return (
@@ -73,19 +80,13 @@ export function CortexSidebar() {
             ))}
           </ul>
           <div className="mt-4 pt-4 border-t border-border/50">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button className={cn('w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200 text-sm font-medium', inactiveLinkClass)}>
-                    <LogOut className="w-5 h-5" />
-                    <span>Log Out</span>
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Authentication is mocked.</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <button
+              onClick={handleLogout}
+              className={cn('w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200 text-sm font-medium', inactiveLinkClass)}
+            >
+              <LogOut className="w-5 h-5" />
+              <span>Log Out</span>
+            </button>
           </div>
         </div>
       </nav>

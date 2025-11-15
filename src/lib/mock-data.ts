@@ -33,7 +33,15 @@ export const graphData = {
     { source: 'Programming', target: 'Cloud Computing' },
   ],
 };
-export const cortexContent = [
+export interface CortexItem {
+  id: string;
+  title: string;
+  type: 'article' | 'guide' | 'template' | 'code' | 'collection';
+  status: 'published' | 'draft' | 'in_progress';
+  createdAt: Date;
+  keywords: string[];
+}
+export const cortexContent: CortexItem[] = [
   {
     id: '1',
     title: 'Intro to Neural Networks',
@@ -73,5 +81,46 @@ export const cortexContent = [
     status: 'draft',
     createdAt: new Date('2024-02-20'),
     keywords: ['AI', 'Ideas', 'Collection'],
+  },
+];
+export const mockUser = {
+  name: 'Alex Turing',
+  email: 'alex.turing@example.com',
+  avatarUrl: 'https://i.pravatar.cc/150?u=alex-turing',
+};
+export const mockStats = {
+  totalNodes: 14,
+  contentItems: 5,
+  connections: 15,
+  avgConnections: 2.1,
+  contentByType: {
+    Articles: 1,
+    Guides: 1,
+    Templates: 1,
+    Code: 1,
+    Collections: 1,
+  },
+};
+export const mockRoadmap = [
+  {
+    id: '1',
+    title: 'Q3: Content Import Feature',
+    description: 'Allow importing from Markdown and Notion.',
+    status: 'In Progress',
+    progress: 40,
+  },
+  {
+    id: '2',
+    title: 'Q2: Advanced Search Filters',
+    description: 'Filter content by type, date, and keywords.',
+    status: 'Completed',
+    progress: 100,
+  },
+  {
+    id: '3',
+    title: 'Q3: Collaborative Spaces',
+    description: 'Share and edit knowledge graphs with your team.',
+    status: 'In Progress',
+    progress: 15,
   },
 ];
