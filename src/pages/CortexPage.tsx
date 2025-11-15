@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { LayoutGrid, List, Table, KanbanSquare, FolderKanban, MoreHorizontal } from 'lucide-react';
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
-import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent, DragOverlay, DragStartEvent, UniqueIdentifier } from '@dnd-kit/core';
+import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -13,7 +13,21 @@ import type { CortexItem } from '@/lib/mock-data';
 import { format } from 'date-fns';
 import { useCortexStore } from '@/stores/useCortexStore';
 import type { KanbanColumn, KanbanColumnId } from '@/stores/useCortexStore';
-const TaskCard = ({ item }: { item: CortexItem }) => {
+// A static, non-sortable version of the card for DragOverlay
+const StaticTaskCard = ({ item }: { item: CortexItem }) => {
+  return (
+    <Card className="mb-4 bg-background touch-none shadow-lg">
+      <CardContent className="p-3">
+        <p className="font-semibold text-sm mb-2">{item.title}</p>
+        <div className="flex items-center justify-between">
+          <Badge variant="outline" className="capitalize text-xs">{item.type}</Badge>
+          <span className="text-xs text-muted-foreground">{format(item.createdAt, 'MMM d')}</span>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+const SortableTaskCard = ({ item }: { item: CortexItem }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -41,25 +55,36 @@ const KanbanColumnComponent = ({ column }: { column: KanbanColumn }) => {
       </div>
       <Card className="bg-muted/50 p-2 min-h-[200px]">
         <SortableContext items={column.items.map(i => i.id)} strategy={verticalListSortingStrategy}>
-          {column.items.map(item => <TaskCard key={item.id} item={item} />)}
+          {column.items.map(item => <SortableTaskCard key={item.id} item={item} />)}
         </SortableContext>
       </Card>
     </div>
   );
 };
 export function CortexPage() {
-  const { kanbanColumns, moveTask } = useCortexStore(state => ({ kanbanColumns: state.kanbanColumns, moveTask: state.moveTask }));
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const { kanbanColumns, moveTask, reorderTask } = useCortexStore(state => ({ 
+    kanbanColumns: state.kanbanColumns, 
+    moveTask: state.moveTask,
+    reorderTask: state.reorderTask,
+  }));
+  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
+    setActiveId(event.active.id);
   };
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveId(null);
-    if (over && active.id !== over.id) {
-      const overContainerId = over.data.current?.sortable.containerId as KanbanColumnId;
-      moveTask(active.id as string, over.id as string, overContainerId);
+    if (!over) return;
+    const activeContainer = active.data.current?.sortable.containerId as KanbanColumnId;
+    const overContainer = over.data.current?.sortable.containerId as KanbanColumnId || activeContainer;
+    if (active.id === over.id) return;
+    if (activeContainer === overContainer) {
+      // Reordering within the same column
+      reorderTask(active.id as string, over.id as string, activeContainer);
+    } else {
+      // Moving to a different column
+      moveTask(active.id as string, over.id as string, overContainer);
     }
   };
   const activeTask = activeId ? cortexContent.find(item => item.id === activeId) : null;
@@ -148,7 +173,7 @@ export function CortexPage() {
                 <KanbanColumnComponent key={col.id} column={col} />
               ))}
             </div>
-            <DragOverlay>{activeTask ? <TaskCard item={activeTask} /> : null}</DragOverlay>
+            <DragOverlay>{activeTask ? <StaticTaskCard item={activeTask} /> : null}</DragOverlay>
           </DndContext>
         </TabsContent>
       </Tabs>
