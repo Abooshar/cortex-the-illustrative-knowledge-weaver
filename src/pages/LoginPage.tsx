@@ -12,7 +12,7 @@ export function LoginPage() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     login();
-    navigate('/');
+    navigate('/app');
   };
   return (
     <div className="min-h-screen flex items-center justify-center bg-cortex-light dark:bg-cortex-dark p-4">

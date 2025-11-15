@@ -6,7 +6,7 @@ type ThemeProviderState = {
   toggleTheme: () => void;
   isDark: boolean;
 };
-export const ThemeProviderContext = createContext<ThemeProviderState | undefined>(undefined);
+const ThemeProviderContext = createContext<ThemeProviderState | undefined>(undefined);
 export function ThemeProvider({
   children,
   defaultTheme = 'system',

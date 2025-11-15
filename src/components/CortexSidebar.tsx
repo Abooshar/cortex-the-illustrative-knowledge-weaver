@@ -2,16 +2,15 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { BrainCircuit, Sparkles, FolderKanban, User, Settings, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useCortexStore } from '@/stores/useCortexStore';
 const navItems = [
-  { to: '/', icon: BrainCircuit, label: 'Neural View' },
-  { to: '/search', icon: Sparkles, label: 'AI Search' },
-  { to: '/cortex', icon: FolderKanban, label: 'Content Cortex' },
+  { to: '/app', icon: BrainCircuit, label: 'Neural View' },
+  { to: '/app/search', icon: Sparkles, label: 'AI Search' },
+  { to: '/app/cortex', icon: FolderKanban, label: 'Content Cortex' },
 ];
 const bottomNavItems = [
-  { to: '/profile', icon: User, label: 'Profile' },
-  { to: '/settings', icon: Settings, label: 'Settings' },
+  { to: '/app/profile', icon: User, label: 'Profile' },
+  { to: '/app/settings', icon: Settings, label: 'Settings' },
 ];
 export function CortexSidebar() {
   const navigate = useNavigate();
@@ -46,7 +45,7 @@ export function CortexSidebar() {
             >
               <NavLink
                 to={item.to}
-                end
+                end={item.to === '/app'}
                 className={({ isActive }) =>
                   cn(
                     'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200 text-sm font-medium',

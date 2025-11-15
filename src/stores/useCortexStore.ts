@@ -40,7 +40,7 @@ cortexContent.forEach(item => {
 });
 export const useCortexStore = create<CortexState & CortexActions>()(
   immer((set) => ({
-    isAuthenticated: false,
+    isAuthenticated: true, // Changed for demo purposes
     user: mockUser,
     kanbanColumns: initialKanbanColumns,
     login: () =>
@@ -69,10 +69,12 @@ export const useCortexStore = create<CortexState & CortexActions>()(
         state.kanbanColumns[activeContainer].items.splice(activeIndex, 1);
         // Add to new container
         const targetContainer = overContainer || activeContainer;
-        const overIndex = overId ? state.kanbanColumns[targetContainer].items.findIndex(item => item.id === overId) : state.kanbanColumns[targetContainer].items.length;
-        state.kanbanColumns[targetContainer].items.splice(overIndex, 0, activeItem);
-        // Update status
-        activeItem.status = targetContainer;
+        if (state.kanbanColumns[targetContainer]) {
+            const overIndex = overId ? state.kanbanColumns[targetContainer].items.findIndex(item => item.id === overId) : state.kanbanColumns[targetContainer].items.length;
+            state.kanbanColumns[targetContainer].items.splice(overIndex, 0, activeItem);
+            // Update status
+            activeItem.status = targetContainer;
+        }
       }),
   }))
 );
