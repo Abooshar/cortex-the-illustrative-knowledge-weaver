@@ -36,8 +36,15 @@ const sampleLinks = [
   { source: 'Data Science', target: 'Machine Learning' },
 ];
 
-const NeuralGraph: React.FC = () => {
-  const [graphData] = useState({ nodes: sampleNodes, links: sampleLinks });
+interface NeuralGraphProps {
+  data: {
+    nodes: { id: string; name?: string; val: number }[];
+    links: { source: string; target: string }[];
+  };
+}
+
+const NeuralGraph: React.FC<NeuralGraphProps> = ({ data }) => {
+  const [graphData] = useState(data || { nodes: sampleNodes, links: sampleLinks });
   const [highlightNodes, setHighlightNodes] = useState<Set<string | number>>(new Set());
   const [highlightLinks, setHighlightLinks] = useState<Set<any>>(new Set());
   const [selectedNode, setSelectedNode] = useState<any | null>(null);
