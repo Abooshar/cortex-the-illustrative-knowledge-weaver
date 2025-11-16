@@ -79,7 +79,8 @@ function updateWranglerJsonc() {
 function runSetupCommands() {
     const commands = [
     "bun add react-force-graph-2d@^1.25.0",
-    "bun install react-force-graph-2d @tanstack/react-table"
+    "bun install react-force-graph-2d @tanstack/react-table",
+    "bun add @types/react-force-graph-2d"
 ];
     
     if (commands.length === 0) {

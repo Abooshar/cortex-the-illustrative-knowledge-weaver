@@ -1,12 +1,17 @@
 import { Button } from '@/components/ui/button';
-import { useTheme } from '@/components/ThemeProvider';
+import { useTheme } from '@/hooks/useTheme';
 import { Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 interface ThemeToggleProps {
   className?: string;
 }
 export function ThemeToggle({ className }: ThemeToggleProps) {
-  const { isDark, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
+
   return (
     <Button
       onClick={toggleTheme}

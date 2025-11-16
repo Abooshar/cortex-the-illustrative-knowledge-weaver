@@ -1,125 +1,161 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import ForceGraph2D, { ForceGraphMethods, NodeObject, LinkObject } from 'react-force-graph-2d';
-import { useTheme } from '@/components/ThemeProvider';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-interface GraphData {
-  nodes: NodeObject[];
-  links: LinkObject[];
-}
-interface NeuralGraphProps {
-  data: GraphData;
-}
-export const NeuralGraph: React.FC<NeuralGraphProps> = ({ data }) => {
-  const fgRef = useRef<ForceGraphMethods>();
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { isDark } = useTheme();
+import React, { useState, useCallback, useRef } from 'react';
+import ForceGraph2D, { NodeObject, LinkObject } from 'react-force-graph-2d';
+import { Popover, Card, CardContent, Typography } from '@mui/material';
+
+// Sample data based on context
+const sampleNodes = [
+  { id: 'AI', name: 'Artificial Intelligence', val: 10 },
+  { id: 'Machine Learning', name: 'Machine Learning', val: 8 },
+  { id: 'Programming', name: 'Programming', val: 10 },
+  { id: 'Design', name: 'Design', val: 9 },
+  { id: 'Deep Learning', name: 'Deep Learning', val: 6 },
+  { id: 'NLP', name: 'Natural Language Processing', val: 6 },
+  { id: 'Computer Vision', name: 'Computer Vision', val: 6 },
+  { id: 'Python', name: 'Python', val: 8 },
+  { id: 'JavaScript', name: 'JavaScript', val: 8 },
+  { id: 'React', name: 'React', val: 6 },
+  { id: 'UX Research', name: 'UX Research', val: 7 },
+  { id: 'UI Design', name: 'UI Design', val: 7 },
+  { id: 'Data Science', name: 'Data Science', val: 8 },
+  { id: 'Cloud Architecture', name: 'Cloud Architecture', val: 7 },
+];
+
+const sampleLinks = [
+  { source: 'AI', target: 'Machine Learning' },
+  { source: 'AI', target: 'Data Science' },
+  { source: 'Machine Learning', target: 'Deep Learning' },
+  { source: 'Machine Learning', target: 'NLP' },
+  { source: 'Machine Learning', target: 'Computer Vision' },
+  { source: 'Programming', target: 'Python' },
+  { source: 'Programming', target: 'JavaScript' },
+  { source: 'Programming', target: 'Cloud Architecture' },
+  { source: 'JavaScript', target: 'React' },
+  { source: 'Design', target: 'UX Research' },
+  { source: 'Design', target: 'UI Design' },
+  { source: 'Data Science', target: 'Python' },
+  { source: 'Data Science', target: 'Machine Learning' },
+];
+
+const NeuralGraph: React.FC = () => {
+  const [graphData] = useState({ nodes: sampleNodes, links: sampleLinks });
+  const [highlightNodes, setHighlightNodes] = useState<Set<string | number>>(new Set());
+  const [highlightLinks, setHighlightLinks] = useState<Set<LinkObject>>(new Set());
   const [selectedNode, setSelectedNode] = useState<NodeObject | null>(null);
-  const [highlightNodes, setHighlightNodes] = useState(new Set());
-  const [highlightLinks, setHighlightLinks] = useState(new Set());
-  useEffect(() => {
-    const updateDimensions = () => {
-      if (containerRef.current) {
-        setDimensions({
-          width: containerRef.current.offsetWidth,
-          height: containerRef.current.offsetHeight,
-        });
-      }
-    };
-    updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-    const timer = setTimeout(() => fgRef.current?.zoomToFit(400, 100), 500);
-    return () => {
-      window.removeEventListener('resize', updateDimensions);
-      clearTimeout(timer);
-    };
-  }, []);
-  const handleNodeClick = useCallback((node: NodeObject) => {
+  const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+
+  const updateHighlight = useCallback((node: NodeObject | null) => {
+    const newHighlightNodes = new Set<string | number>();
+    const newHighlightLinks = new Set<LinkObject>();
+
     if (node) {
-      const newHighlightNodes = new Set();
-      const newHighlightLinks = new Set();
-      newHighlightNodes.add(node);
-      data.links.forEach(link => {
-        if (link.source === node || link.target === node) {
+      newHighlightNodes.add(node.id as string);
+      graphData.links.forEach(link => {
+        const sourceId = typeof link.source === 'object' ? (link.source as NodeObject).id : link.source;
+        const targetId = typeof link.target === 'object' ? (link.target as NodeObject).id : link.target;
+        if (sourceId === node.id || targetId === node.id) {
           newHighlightLinks.add(link);
-          newHighlightNodes.add(link.source);
-          newHighlightNodes.add(link.target);
+          newHighlightNodes.add(sourceId as string);
+          newHighlightNodes.add(targetId as string);
         }
       });
-      setHighlightNodes(newHighlightNodes);
-      setHighlightLinks(newHighlightLinks);
-      setSelectedNode(node);
     }
-  }, [data.links]);
+    setHighlightNodes(newHighlightNodes);
+    setHighlightLinks(newHighlightLinks);
+  }, [graphData.links]);
+
+  const handleNodeClick = useCallback((node: NodeObject, event: MouseEvent) => {
+    setSelectedNode(node);
+    // Use a dummy div for popover positioning
+    const popoverAnchor = document.createElement('div');
+    popoverAnchor.style.position = 'fixed';
+    popoverAnchor.style.top = `${event.clientY}px`;
+    popoverAnchor.style.left = `${event.clientX}px`;
+    document.body.appendChild(popoverAnchor);
+    setAnchorEl(popoverAnchor);
+    updateHighlight(node);
+  }, [updateHighlight]);
+
   const handleBackgroundClick = useCallback(() => {
-    setHighlightNodes(new Set());
-    setHighlightLinks(new Set());
     setSelectedNode(null);
-  }, []);
-  if (typeof window === 'undefined') {
-    return null;
-  }
+    setAnchorEl(null);
+    updateHighlight(null);
+  }, [updateHighlight]);
+
+  const handlePopoverClose = () => {
+    if (anchorEl) {
+      document.body.removeChild(anchorEl);
+    }
+    setAnchorEl(null);
+  };
+
+  const nodeCanvasObject = useCallback((node: NodeObject, ctx: CanvasRenderingContext2D, globalScale: number) => {
+    const label = node.name as string;
+    const fontSize = 12 / globalScale;
+    ctx.font = `${fontSize}px Sans-Serif`;
+    
+    const isHighlighted = highlightNodes.has(node.id as string);
+    const isSelected = selectedNode?.id === node.id;
+
+    ctx.fillStyle = isSelected ? 'rgba(255, 255, 0, 0.9)' : isHighlighted ? 'rgba(255, 165, 0, 0.8)' : 'rgba(0, 191, 255, 0.8)';
+    ctx.beginPath();
+    ctx.arc(node.x!, node.y!, (node.val as number) / 2, 0, 2 * Math.PI, false);
+    ctx.fill();
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'white';
+    ctx.fillText(label, node.x!, node.y! + (node.val as number) / 2 + fontSize);
+  }, [highlightNodes, selectedNode]);
+
   return (
-    <div ref={containerRef} className="w-full h-full absolute top-0 left-0">
+    <div style={{ position: 'relative', width: '100%', height: 'calc(100vh - 64px)' }}>
       <ForceGraph2D
-        ref={fgRef}
-        graphData={data}
-        width={dimensions.width}
-        height={dimensions.height}
-        nodeLabel="id"
-        nodeVal={node => (node.val as number) || 1}
+        graphData={graphData}
+        nodeLabel="name"
+        nodeVal="val"
         onNodeClick={handleNodeClick}
         onBackgroundClick={handleBackgroundClick}
-        nodeCanvasObject={(node, ctx, globalScale) => {
-          const label = node.id as string;
-          const fontSize = 12 / globalScale;
-          ctx.font = `600 ${fontSize}px Inter`;
-          const isHighlighted = highlightNodes.size === 0 || highlightNodes.has(node);
-          const isPrimary = node.group === 1;
-          let nodeColor = isPrimary ? 'rgb(79, 70, 229)' : (isDark ? 'rgba(250, 250, 252, 0.8)' : 'rgba(23, 23, 33, 0.8)');
-          if (selectedNode === node) {
-            nodeColor = isDark ? '#f59e0b' : '#d97706'; // Amber color for selected
-          }
-          ctx.globalAlpha = isHighlighted ? 1 : 0.2;
-          ctx.fillStyle = nodeColor;
-          ctx.beginPath();
-          ctx.arc(node.x!, node.y!, (node.val as number) * 4, 0, 2 * Math.PI, false);
-          ctx.fill();
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillStyle = isPrimary ? (isDark ? '#fafafc' : '#171721') : (isDark ? '#fafafc' : '#171721');
-          ctx.fillText(label, node.x!, node.y!);
-          ctx.globalAlpha = 1;
-        }}
-        linkWidth={link => (highlightLinks.has(link) ? 2 : 0.5)}
-        linkColor={link => (highlightLinks.has(link) ? (isDark ? '#f59e0b' : '#d97706') : (isDark ? 'rgba(250, 250, 252, 0.2)' : 'rgba(23, 23, 33, 0.2)'))}
-        linkDirectionalParticles={link => (highlightLinks.has(link) ? 4 : 0)}
+        linkWidth={link => highlightLinks.has(link) ? 2 : 1}
+        linkColor={() => 'rgba(255,255,255,0.2)'}
+        linkDirectionalParticles={link => highlightLinks.has(link) ? 4 : 0}
         linkDirectionalParticleWidth={2}
-        backgroundColor={isDark ? 'rgb(23, 23, 33)' : 'rgb(250, 250, 252)'}
+        nodeCanvasObject={nodeCanvasObject}
+        backgroundColor="#000011"
       />
-      <Sheet open={!!selectedNode} onOpenChange={(open) => !open && setSelectedNode(null)}>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle className="font-display text-2xl">{selectedNode?.id as string}</SheetTitle>
-            <SheetDescription>
-              Details and connections for this knowledge node.
-            </SheetDescription>
-          </SheetHeader>
-          <div className="py-4">
-            <p><strong>Group:</strong> {selectedNode?.group}</p>
-            <p><strong>Value:</strong> {selectedNode?.val as number}</p>
-            <h3 className="font-semibold mt-4">Connections:</h3>
-            <ul>
-              {data.links
-                .filter(link => link.source === selectedNode || link.target === selectedNode)
-                .map((link, i) => {
-                  const connectedNode = (link.source as NodeObject).id === selectedNode?.id ? (link.target as NodeObject).id : (link.source as NodeObject).id;
-                  return <li key={i}>- {connectedNode as string}</li>;
-                })}
-            </ul>
-          </div>
-        </SheetContent>
-      </Sheet>
+      <Popover
+        id={selectedNode ? 'node-details-popover' : undefined}
+        open={!!anchorEl}
+        anchorEl={anchorEl}
+        onClose={handlePopoverClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        ref={popoverRef}
+      >
+        {selectedNode && (
+          <Card sx={{ minWidth: 275, maxWidth: 350 }}>
+            <CardContent>
+              <Typography variant="h6" component="div">
+                {selectedNode.name as string}
+              </Typography>
+              <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                ID: {selectedNode.id as string}
+              </Typography>
+              <Typography variant="body2">
+                This is a sample detail card for the selected node. More information about "{selectedNode.name as string}" would be displayed here.
+              </Typography>
+            </CardContent>
+          </Card>
+        )}
+      </Popover>
     </div>
   );
 };
+
+export default NeuralGraph;
