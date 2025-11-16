@@ -1,8 +1,7 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { arrayMove } from '@dnd-kit/sortable';
-import type { KnowledgeGraph, KnowledgeNode, NodeStatus } from '@/types/knowledge';
-import { cortexContent, graphData } from '@/lib/mock-data';
+import type { KnowledgeGraph, KnowledgeNode, NodeStatus, KnowledgeLink } from '@/types/knowledge';
 export type KanbanColumnId = 'idea' | 'backlog' | 'in_progress' | 'done';
 export interface KanbanColumn {
   id: KanbanColumnId;
@@ -35,6 +34,8 @@ export interface AppState {
   updateNode: (node: KnowledgeNode) => void;
   deleteNode: (nodeId: string) => void;
   resetGraph: () => Promise<void>;
+  createLink: (link: KnowledgeLink) => void;
+  deleteLink: (sourceId: string, targetId: string) => void;
 }
 const recomputeKanbanColumns = (nodes: KnowledgeNode[]): Record<KanbanColumnId, KanbanColumn> => {
   const columns: Record<KanbanColumnId, KanbanColumn> = {
@@ -140,6 +141,17 @@ export const useAppStore = create<AppState>()(
       } catch (error) {
         set({ error: error instanceof Error ? error.message : 'An unknown error occurred', isLoading: false });
       }
+    },
+    createLink: (link) => {
+      const { graph, updateGraph } = get();
+      const newGraph = { ...graph, links: [...graph.links, link] };
+      updateGraph(newGraph);
+    },
+    deleteLink: (sourceId, targetId) => {
+      const { graph, updateGraph } = get();
+      const newLinks = graph.links.filter(l => !(l.source === sourceId && l.target === targetId));
+      const newGraph = { ...graph, links: newLinks };
+      updateGraph(newGraph);
     },
     moveTask: (activeId, overId, newColumnId) => {
       const { graph, updateGraph } = get();

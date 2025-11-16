@@ -1,63 +1,31 @@
-import React, { useState, useCallback, useRef } from 'react';
-import ForceGraph2D from 'react-force-graph-2d';
-import { Popover, Card, CardContent, Typography } from '@mui/material';
-
-// Sample data based on context
-const sampleNodes = [
-  { id: 'AI', name: 'Artificial Intelligence', val: 10 },
-  { id: 'Machine Learning', name: 'Machine Learning', val: 8 },
-  { id: 'Programming', name: 'Programming', val: 10 },
-  { id: 'Design', name: 'Design', val: 9 },
-  { id: 'Deep Learning', name: 'Deep Learning', val: 6 },
-  { id: 'NLP', name: 'Natural Language Processing', val: 6 },
-  { id: 'Computer Vision', name: 'Computer Vision', val: 6 },
-  { id: 'Python', name: 'Python', val: 8 },
-  { id: 'JavaScript', name: 'JavaScript', val: 8 },
-  { id: 'React', name: 'React', val: 6 },
-  { id: 'UX Research', name: 'UX Research', val: 7 },
-  { id: 'UI Design', name: 'UI Design', val: 7 },
-  { id: 'Data Science', name: 'Data Science', val: 8 },
-  { id: 'Cloud Architecture', name: 'Cloud Architecture', val: 7 },
-];
-
-const sampleLinks = [
-  { source: 'AI', target: 'Machine Learning' },
-  { source: 'AI', target: 'Data Science' },
-  { source: 'Machine Learning', target: 'Deep Learning' },
-  { source: 'Machine Learning', target: 'NLP' },
-  { source: 'Machine Learning', target: 'Computer Vision' },
-  { source: 'Programming', target: 'Python' },
-  { source: 'Programming', target: 'JavaScript' },
-  { source: 'Programming', target: 'Cloud Architecture' },
-  { source: 'JavaScript', target: 'React' },
-  { source: 'Design', target: 'UX Research' },
-  { source: 'Design', target: 'UI Design' },
-  { source: 'Data Science', target: 'Python' },
-  { source: 'Data Science', target: 'Machine Learning' },
-];
-
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import ForceGraph2D, { ForceGraphMethods, NodeObject } from 'react-force-graph-2d';
+import { useAppStore } from '@/stores/useAppStore';
+import type { KnowledgeNode } from '@/types/knowledge';
 interface NeuralGraphProps {
   data: {
-    nodes: { id: string; name?: string; val: number }[];
+    nodes: KnowledgeNode[];
     links: { source: string; target: string }[];
   };
 }
-
 const NeuralGraph: React.FC<NeuralGraphProps> = ({ data }) => {
-  const [graphData] = useState(data || { nodes: sampleNodes, links: sampleLinks });
+  const graphRef = useRef<ForceGraphMethods>();
+  const setEditingNode = useAppStore(state => state.setEditingNode);
+  const setIsEditorOpen = useAppStore(state => state.setIsEditorOpen);
   const [highlightNodes, setHighlightNodes] = useState<Set<string | number>>(new Set());
   const [highlightLinks, setHighlightLinks] = useState<Set<any>>(new Set());
-  const [selectedNode, setSelectedNode] = useState<any | null>(null);
-  const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
-  const popoverRef = useRef<HTMLDivElement>(null);
-
-  const updateHighlight = useCallback((node: any | null) => {
+  useEffect(() => {
+    if (graphRef.current) {
+      graphRef.current.d3Force('link')?.distance(link => 80);
+      graphRef.current.d3Force('charge')?.strength(-150);
+    }
+  }, []);
+  const updateHighlight = useCallback((node: NodeObject | null) => {
     const newHighlightNodes = new Set<string | number>();
     const newHighlightLinks = new Set<any>();
-
     if (node) {
       newHighlightNodes.add(node.id as string);
-      graphData.links.forEach(link => {
+      data.links.forEach(link => {
         const sourceId = typeof link.source === 'object' ? (link.source as any).id : link.source;
         const targetId = typeof link.target === 'object' ? (link.target as any).id : link.target;
         if (sourceId === node.id || targetId === node.id) {
@@ -69,100 +37,56 @@ const NeuralGraph: React.FC<NeuralGraphProps> = ({ data }) => {
     }
     setHighlightNodes(newHighlightNodes);
     setHighlightLinks(newHighlightLinks);
-  }, [graphData.links]);
-
-  const handleNodeClick = useCallback((node: any, event: MouseEvent) => {
-    setSelectedNode(node);
-    // Use a dummy div for popover positioning
-    const popoverAnchor = document.createElement('div');
-    popoverAnchor.style.position = 'fixed';
-    popoverAnchor.style.top = `${event.clientY}px`;
-    popoverAnchor.style.left = `${event.clientX}px`;
-    document.body.appendChild(popoverAnchor);
-    setAnchorEl(popoverAnchor);
+  }, [data.links]);
+  const handleNodeClick = useCallback((node: NodeObject) => {
+    const fullNode = data.nodes.find(n => n.id === node.id);
+    if (fullNode) {
+      setEditingNode(fullNode);
+      setIsEditorOpen(true);
+    }
     updateHighlight(node);
-  }, [updateHighlight]);
-
+    graphRef.current?.centerAt(node.x, node.y, 1000);
+    graphRef.current?.zoom(2, 1000);
+  }, [data.nodes, setEditingNode, setIsEditorOpen, updateHighlight]);
   const handleBackgroundClick = useCallback(() => {
-    setSelectedNode(null);
-    setAnchorEl(null);
     updateHighlight(null);
   }, [updateHighlight]);
-
-  const handlePopoverClose = () => {
-    if (anchorEl) {
-      document.body.removeChild(anchorEl);
-    }
-    setAnchorEl(null);
-  };
-
   const nodeCanvasObject = useCallback((node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
     const label = node.name as string;
     const fontSize = 12 / globalScale;
-    ctx.font = `${fontSize}px Sans-Serif`;
-    
+    ctx.font = `600 ${fontSize}px Inter, sans-serif`;
     const isHighlighted = highlightNodes.has(node.id as string);
-    const isSelected = selectedNode?.id === node.id;
-
-    ctx.fillStyle = isSelected ? 'rgba(255, 255, 0, 0.9)' : isHighlighted ? 'rgba(255, 165, 0, 0.8)' : 'rgba(0, 191, 255, 0.8)';
+    const nodeColor = isHighlighted ? 'rgb(79, 70, 229)' : 'rgba(79, 70, 229, 0.6)';
+    const textColor = isHighlighted ? '#fafafc' : 'rgba(250, 250, 252, 0.8)';
+    ctx.fillStyle = nodeColor;
     ctx.beginPath();
-    ctx.arc(node.x!, node.y!, (node.val as number) / 2, 0, 2 * Math.PI, false);
+    ctx.arc(node.x!, node.y!, node.val, 0, 2 * Math.PI, false);
     ctx.fill();
-
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'white';
-    ctx.fillText(label, node.x!, node.y! + (node.val as number) / 2 + fontSize);
-  }, [highlightNodes, selectedNode]);
-
+    ctx.fillStyle = textColor;
+    ctx.fillText(label, node.x!, node.y!);
+  }, [highlightNodes]);
   return (
-    <div style={{ position: 'relative', width: '100%', height: 'calc(100vh - 64px)' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       <ForceGraph2D
-        graphData={graphData}
+        ref={graphRef}
+        graphData={data}
         nodeLabel="name"
         nodeVal="val"
         onNodeClick={handleNodeClick}
         onBackgroundClick={handleBackgroundClick}
-        linkWidth={link => highlightLinks.has(link) ? 2 : 1}
+        linkWidth={link => highlightLinks.has(link) ? 2.5 : 1}
         linkColor={() => 'rgba(255,255,255,0.2)'}
-        linkDirectionalParticles={link => highlightLinks.has(link) ? 4 : 0}
-        linkDirectionalParticleWidth={2}
+        linkDirectionalParticles={link => highlightLinks.has(link) ? 2 : 0}
+        linkDirectionalParticleWidth={3}
+        linkDirectionalParticleColor={() => 'rgb(79, 70, 229)'}
         nodeCanvasObject={nodeCanvasObject}
-        backgroundColor="#000011"
+        backgroundColor="rgb(23, 23, 33)"
+        cooldownTicks={100}
+        onEngineStop={() => graphRef.current?.zoomToFit(400)}
       />
-      <Popover
-        id={selectedNode ? 'node-details-popover' : undefined}
-        open={!!anchorEl}
-        anchorEl={anchorEl}
-        onClose={handlePopoverClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-        ref={popoverRef}
-      >
-        {selectedNode && (
-          <Card sx={{ minWidth: 275, maxWidth: 350 }}>
-            <CardContent>
-              <Typography variant="h6" component="div">
-                {selectedNode.name as string}
-              </Typography>
-              <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                ID: {selectedNode.id as string}
-              </Typography>
-              <Typography variant="body2">
-                This is a sample detail card for the selected node. More information about "{selectedNode.name as string}" would be displayed here.
-              </Typography>
-            </CardContent>
-          </Card>
-        )}
-      </Popover>
     </div>
   );
 };
-
 export default NeuralGraph;

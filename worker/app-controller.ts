@@ -16,10 +16,10 @@ export class AppController extends DurableObject<Env> {
   private async ensureLoaded(): Promise<void> {
     if (!this.loaded) {
       const [storedSessions, storedGraph] = await Promise.all([
-        this.ctx.storage.get<Record<string, SessionInfo>>('sessions') || {},
+        this.ctx.storage.get<Record<string, SessionInfo>>('sessions'),
         this.ctx.storage.get<KnowledgeGraph>('knowledgeGraph')
       ]);
-      this.sessions = new Map(Object.entries(storedSessions));
+      this.sessions = new Map(Object.entries(storedSessions || {}));
       this.knowledgeGraph = storedGraph || null;
       if (!this.knowledgeGraph) {
         await this.seedInitialData();
