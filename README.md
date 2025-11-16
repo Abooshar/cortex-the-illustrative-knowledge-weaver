@@ -1,6 +1,6 @@
 # Cortex: The Illustrative Knowledge Weaver
 
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/Abooshar/cortex-the-illustrative-knowledge-weaver)
 
 Cortex is a visually-driven knowledge management system designed to help users organize, visualize, and query their information through an intuitive, illustrative interface. It transforms traditional notes, files, and links into an interactive neural network, allowing users to discover hidden connections and insights. The core of the application is a dynamic graph visualization where each piece of information is a node. Users can interact with an AI assistant via a chat interface to search their knowledge base using natural language. A comprehensive content management hub, named 'The Cortex', provides multiple views like tables, grids, and Kanban boards for meticulous organization. The entire experience is wrapped in a whimsical, illustrative design that makes managing knowledge not just productive, but delightful.
 
@@ -92,7 +92,7 @@ This project is designed for seamless deployment to Cloudflare Pages.
 
 Alternatively, you can deploy directly from your GitHub repository.
 
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/Abooshar/cortex-the-illustrative-knowledge-weaver)
 
 ## Important Note on AI Usage
 
