@@ -2,12 +2,10 @@ import { DurableObject } from 'cloudflare:workers';
 import type { SessionInfo } from './types';
 import type { Env } from './core-utils';
 import { cortexContent, graphData } from '../src/lib/mock-data'; // Using mock data as seeder
-// Define the structure for our knowledge graph data
 interface KnowledgeGraph {
-  nodes: any[]; // Using any for now to match mock data structure
+  nodes: any[];
   links: any[];
 }
-// 🤖 AI Extension Point: Add session management features
 export class AppController extends DurableObject<Env> {
   private sessions = new Map<string, SessionInfo>();
   private knowledgeGraph: KnowledgeGraph | null = null;
@@ -37,9 +35,8 @@ export class AppController extends DurableObject<Env> {
       await this.ctx.storage.put('knowledgeGraph', this.knowledgeGraph);
     }
   }
-  async seedInitialData(): Promise<void> {
+  async seedInitialData(): Promise<KnowledgeGraph> {
     console.log("Seeding initial knowledge graph data...");
-    // Combine nodes from cortexContent and graphData, ensuring no duplicates
     const allNodes = [...cortexContent];
     const cortexNodeIds = new Set(cortexContent.map(n => n.id));
     graphData.nodes.forEach(graphNode => {
@@ -50,7 +47,7 @@ export class AppController extends DurableObject<Env> {
           type: 'topic',
           status: 'published',
           createdAt: new Date().toISOString(),
-          keywords: [graphNode.group.toString()],
+          keywords: [String(graphNode.group)],
         });
       }
     });
@@ -59,6 +56,7 @@ export class AppController extends DurableObject<Env> {
       links: graphData.links,
     };
     await this.persistGraph();
+    return this.knowledgeGraph;
   }
   // --- Knowledge Graph Methods ---
   async getGraph(): Promise<KnowledgeGraph | null> {
@@ -69,6 +67,10 @@ export class AppController extends DurableObject<Env> {
     await this.ensureLoaded();
     this.knowledgeGraph = graph;
     await this.persistGraph();
+  }
+  async resetGraph(): Promise<KnowledgeGraph> {
+    await this.ensureLoaded();
+    return this.seedInitialData();
   }
   // --- Session Methods ---
   async addSession(sessionId: string, title?: string): Promise<void> {
