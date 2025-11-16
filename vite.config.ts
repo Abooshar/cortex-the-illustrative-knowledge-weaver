@@ -106,6 +106,9 @@ export default ({ mode }: { mode: string }) => {
     },
     server: {
       allowedHosts: true,
+      hmr: {
+        clientPort: 443,
+      },
     },
     resolve: {
       alias: {
