@@ -80,7 +80,8 @@ function runSetupCommands() {
     const commands = [
     "bun add react-force-graph-2d@^1.25.0",
     "bun install react-force-graph-2d @tanstack/react-table",
-    "bun add @types/react-force-graph-2d"
+    "bun add @types/react-force-graph-2d",
+    "bun add @mui/material @emotion/react @emotion/styled"
 ];
     
     if (commands.length === 0) {

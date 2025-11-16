@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import ForceGraph2D, { NodeObject, LinkObject } from 'react-force-graph-2d';
+import ForceGraph2D from 'react-force-graph-2d';
 import { Popover, Card, CardContent, Typography } from '@mui/material';
 
 // Sample data based on context
@@ -39,20 +39,20 @@ const sampleLinks = [
 const NeuralGraph: React.FC = () => {
   const [graphData] = useState({ nodes: sampleNodes, links: sampleLinks });
   const [highlightNodes, setHighlightNodes] = useState<Set<string | number>>(new Set());
-  const [highlightLinks, setHighlightLinks] = useState<Set<LinkObject>>(new Set());
-  const [selectedNode, setSelectedNode] = useState<NodeObject | null>(null);
+  const [highlightLinks, setHighlightLinks] = useState<Set<any>>(new Set());
+  const [selectedNode, setSelectedNode] = useState<any | null>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
-  const updateHighlight = useCallback((node: NodeObject | null) => {
+  const updateHighlight = useCallback((node: any | null) => {
     const newHighlightNodes = new Set<string | number>();
-    const newHighlightLinks = new Set<LinkObject>();
+    const newHighlightLinks = new Set<any>();
 
     if (node) {
       newHighlightNodes.add(node.id as string);
       graphData.links.forEach(link => {
-        const sourceId = typeof link.source === 'object' ? (link.source as NodeObject).id : link.source;
-        const targetId = typeof link.target === 'object' ? (link.target as NodeObject).id : link.target;
+        const sourceId = typeof link.source === 'object' ? (link.source as any).id : link.source;
+        const targetId = typeof link.target === 'object' ? (link.target as any).id : link.target;
         if (sourceId === node.id || targetId === node.id) {
           newHighlightLinks.add(link);
           newHighlightNodes.add(sourceId as string);
@@ -64,7 +64,7 @@ const NeuralGraph: React.FC = () => {
     setHighlightLinks(newHighlightLinks);
   }, [graphData.links]);
 
-  const handleNodeClick = useCallback((node: NodeObject, event: MouseEvent) => {
+  const handleNodeClick = useCallback((node: any, event: MouseEvent) => {
     setSelectedNode(node);
     // Use a dummy div for popover positioning
     const popoverAnchor = document.createElement('div');
@@ -89,7 +89,7 @@ const NeuralGraph: React.FC = () => {
     setAnchorEl(null);
   };
 
-  const nodeCanvasObject = useCallback((node: NodeObject, ctx: CanvasRenderingContext2D, globalScale: number) => {
+  const nodeCanvasObject = useCallback((node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
     const label = node.name as string;
     const fontSize = 12 / globalScale;
     ctx.font = `${fontSize}px Sans-Serif`;
