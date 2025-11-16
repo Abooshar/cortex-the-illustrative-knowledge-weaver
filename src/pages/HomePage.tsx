@@ -1,8 +1,16 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BrainCircuit } from 'lucide-react';
+import { BrainCircuit, Loader } from 'lucide-react';
 import NeuralGraph from '@/components/NeuralGraph';
-import { graphData } from '@/lib/mock-data';
+import { useAppStore } from '@/stores/useAppStore';
 export function NeuralPage() {
+  const fetchGraph = useAppStore(state => state.fetchGraph);
+  const graph = useAppStore(state => state.graph);
+  const isLoading = useAppStore(state => state.isLoading);
+  const error = useAppStore(state => state.error);
+  useEffect(() => {
+    fetchGraph();
+  }, [fetchGraph]);
   return (
     <div className="h-full flex flex-col">
       <header className="p-4 border-b border-border/50">
@@ -24,7 +32,22 @@ export function NeuralPage() {
         </motion.div>
       </header>
       <main className="flex-1 relative bg-background">
-        <NeuralGraph data={graphData} />
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
+            <div className="flex flex-col items-center gap-2">
+              <Loader className="w-8 h-8 animate-spin text-cortex-primary" />
+              <p className="text-muted-foreground">Loading Knowledge Graph...</p>
+            </div>
+          </div>
+        )}
+        {error && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
+            <p className="text-destructive-foreground bg-destructive p-4 rounded-md">Error: {error}</p>
+          </div>
+        )}
+        {!isLoading && !error && graph.nodes.length > 0 && (
+          <NeuralGraph data={graph} />
+        )}
       </main>
     </div>
   );

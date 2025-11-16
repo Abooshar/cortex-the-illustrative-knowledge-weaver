@@ -1,33 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { LayoutGrid, List, Table, KanbanSquare, FolderKanban, MoreHorizontal } from 'lucide-react';
+import { LayoutGrid, List, Table, KanbanSquare, FolderKanban, MoreHorizontal, Loader } from 'lucide-react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent, DragOverlay, DragStartEvent, UniqueIdentifier } from '@dnd-kit/core';
-import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table as ShadcnTable, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { cortexContent } from '@/lib/mock-data';
-import type { CortexItem } from '@/lib/mock-data';
 import { format } from 'date-fns';
-import { useCortexStore } from '@/stores/useCortexStore';
-import type { KanbanColumn, KanbanColumnId } from '@/stores/useCortexStore';
-// A static, non-sortable version of the card for DragOverlay
-const StaticTaskCard = ({ item }: { item: CortexItem }) => {
+import { useAppStore } from '@/stores/useAppStore';
+import type { KanbanColumn, KanbanColumnId } from '@/stores/useAppStore';
+import type { KnowledgeNode } from '@/types/knowledge';
+const StaticTaskCard = ({ item }: { item: KnowledgeNode }) => {
   return (
     <Card className="mb-4 bg-background touch-none shadow-lg">
       <CardContent className="p-3">
-        <p className="font-semibold text-sm mb-2">{item.title}</p>
+        <p className="font-semibold text-sm mb-2">{item.name}</p>
         <div className="flex items-center justify-between">
           <Badge variant="outline" className="capitalize text-xs">{item.type}</Badge>
-          <span className="text-xs text-muted-foreground">{format(item.createdAt, 'MMM d')}</span>
+          <span className="text-xs text-muted-foreground">{format(new Date(item.createdAt), 'MMM d')}</span>
         </div>
       </CardContent>
     </Card>
   );
 };
-const SortableTaskCard = ({ item }: { item: CortexItem }) => {
+const SortableTaskCard = ({ item }: { item: KnowledgeNode }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -37,10 +35,10 @@ const SortableTaskCard = ({ item }: { item: CortexItem }) => {
   return (
     <Card ref={setNodeRef} style={style} {...attributes} {...listeners} className="mb-4 bg-background touch-none">
       <CardContent className="p-3">
-        <p className="font-semibold text-sm mb-2">{item.title}</p>
+        <p className="font-semibold text-sm mb-2">{item.name}</p>
         <div className="flex items-center justify-between">
           <Badge variant="outline" className="capitalize text-xs">{item.type}</Badge>
-          <span className="text-xs text-muted-foreground">{format(item.createdAt, 'MMM d')}</span>
+          <span className="text-xs text-muted-foreground">{format(new Date(item.createdAt), 'MMM d')}</span>
         </div>
       </CardContent>
     </Card>
@@ -62,11 +60,20 @@ const KanbanColumnComponent = ({ column }: { column: KanbanColumn }) => {
   );
 };
 export function CortexPage() {
-  const { kanbanColumns, moveTask, reorderTask } = useCortexStore(state => ({ 
-    kanbanColumns: state.kanbanColumns, 
+  const { kanbanColumns, moveTask, reorderTask, fetchGraph, graph, isLoading, error } = useAppStore(state => ({
+    kanbanColumns: state.kanbanColumns,
     moveTask: state.moveTask,
     reorderTask: state.reorderTask,
+    fetchGraph: state.fetchGraph,
+    graph: state.graph,
+    isLoading: state.isLoading,
+    error: state.error,
   }));
+  useEffect(() => {
+    if (graph.nodes.length === 0) {
+      fetchGraph();
+    }
+  }, [fetchGraph, graph.nodes.length]);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const handleDragStart = (event: DragStartEvent) => {
@@ -77,17 +84,29 @@ export function CortexPage() {
     setActiveId(null);
     if (!over) return;
     const activeContainer = active.data.current?.sortable.containerId as KanbanColumnId;
-    const overContainer = over.data.current?.sortable.containerId as KanbanColumnId || activeContainer;
+    const overContainer = over.data.current?.sortable.containerId as KanbanColumnId;
     if (active.id === over.id) return;
     if (activeContainer === overContainer) {
-      // Reordering within the same column
       reorderTask(active.id as string, over.id as string, activeContainer);
     } else {
-      // Moving to a different column
       moveTask(active.id as string, over.id as string, overContainer);
     }
   };
-  const activeTask = activeId ? cortexContent.find(item => item.id === activeId) : null;
+  const activeTask = activeId ? graph.nodes.find(item => item.id === activeId) : null;
+  if (isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Loader className="w-8 h-8 animate-spin text-cortex-primary" />
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <p className="text-destructive-foreground bg-destructive p-4 rounded-md">Error: {error}</p>
+      </div>
+    );
+  }
   return (
     <div className="h-full flex flex-col p-4 md:p-6 lg:p-8">
       <motion.div
@@ -118,12 +137,12 @@ export function CortexPage() {
               <ShadcnTable>
                 <TableHeader><TableRow><TableHead>Title</TableHead><TableHead>Type</TableHead><TableHead>Status</TableHead><TableHead>Created</TableHead><TableHead>Keywords</TableHead></TableRow></TableHeader>
                 <TableBody>
-                  {cortexContent.map((item) => (
+                  {graph.nodes.map((item) => (
                     <TableRow key={item.id}>
-                      <TableCell className="font-medium">{item.title}</TableCell>
+                      <TableCell className="font-medium">{item.name}</TableCell>
                       <TableCell><Badge variant="outline" className="capitalize">{item.type}</Badge></TableCell>
                       <TableCell><Badge variant={item.status === 'published' ? 'default' : 'secondary'} className="capitalize">{item.status}</Badge></TableCell>
-                      <TableCell>{format(item.createdAt, 'MMM d, yyyy')}</TableCell>
+                      <TableCell>{format(new Date(item.createdAt), 'MMM d, yyyy')}</TableCell>
                       <TableCell className="space-x-1">{item.keywords.map(k => <Badge key={k} variant="secondary">{k}</Badge>)}</TableCell>
                     </TableRow>
                   ))}
@@ -134,15 +153,15 @@ export function CortexPage() {
         </TabsContent>
         <TabsContent value="grid" className="flex-1 mt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {cortexContent.map(item => (
+            {graph.nodes.map(item => (
               <Card key={item.id} className="flex flex-col justify-between">
                 <CardHeader>
-                  <CardTitle className="text-base">{item.title}</CardTitle>
+                  <CardTitle className="text-base">{item.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex justify-between items-center text-sm text-muted-foreground">
                     <Badge variant="outline" className="capitalize">{item.type}</Badge>
-                    <span>{format(item.createdAt, 'MMM d, yyyy')}</span>
+                    <span>{format(new Date(item.createdAt), 'MMM d, yyyy')}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -150,12 +169,12 @@ export function CortexPage() {
           </div>
         </TabsContent>
         <TabsContent value="list" className="flex-1 mt-4 space-y-2">
-          {cortexContent.map(item => (
+          {graph.nodes.map(item => (
             <Card key={item.id}>
               <CardContent className="p-3 flex items-center justify-between">
                 <div>
-                  <p className="font-semibold">{item.title}</p>
-                  <p className="text-sm text-muted-foreground">{format(item.createdAt, 'MMMM d, yyyy')}</p>
+                  <p className="font-semibold">{item.name}</p>
+                  <p className="text-sm text-muted-foreground">{format(new Date(item.createdAt), 'MMMM d, yyyy')}</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <Badge variant="outline" className="capitalize">{item.type}</Badge>

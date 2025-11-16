@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useCortexStore } from '@/stores/useCortexStore';
+import { useAppStore } from '@/stores/useAppStore';
 export function LoginPage() {
   const navigate = useNavigate();
-  const login = useCortexStore((state) => state.login);
+  const login = useAppStore((state) => state.login);
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     login();

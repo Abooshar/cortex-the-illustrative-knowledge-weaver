@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { BrainCircuit, Sparkles, FolderKanban, User, Settings, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useCortexStore } from '@/stores/useCortexStore';
+import { useAppStore } from '@/stores/useAppStore';
 const navItems = [
   { to: '/app', icon: BrainCircuit, label: 'Neural View' },
   { to: '/app/search', icon: Sparkles, label: 'AI Search' },
@@ -14,7 +14,7 @@ const bottomNavItems = [
 ];
 export function CortexSidebar() {
   const navigate = useNavigate();
-  const logout = useCortexStore((state) => state.logout);
+  const logout = useAppStore((state) => state.logout);
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -29,7 +29,7 @@ export function CortexSidebar() {
         transition={{ duration: 0.5 }}
         className="flex items-center gap-2.5 px-2 mb-8"
       >
-        <div className="w-8 h-8 rounded-lg bg-cortex-primary flex items-center justify-center">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cortex-primary to-purple-500 flex items-center justify-center">
           <BrainCircuit className="w-5 h-5 text-white" />
         </div>
         <h1 className="text-xl font-display font-bold text-foreground">Cortex</h1>

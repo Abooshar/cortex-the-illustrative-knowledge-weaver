@@ -1,3 +1,4 @@
+import type { KnowledgeNode } from '@/types/knowledge';
 export const graphData = {
   nodes: [
     { id: 'AI', group: 1, val: 10 },
@@ -33,74 +34,53 @@ export const graphData = {
     { source: 'Programming', target: 'Cloud Computing' },
   ],
 };
-export interface CortexItem {
-  id: string;
-  title: string;
-  type: 'article' | 'guide' | 'template' | 'code' | 'collection';
-  status: 'published' | 'draft' | 'in_progress';
-  createdAt: Date;
-  keywords: string[];
-}
-export const cortexContent: CortexItem[] = [
+export const cortexContent: KnowledgeNode[] = [
   {
     id: '1',
-    title: 'Intro to Neural Networks',
+    name: 'Intro to Neural Networks',
     type: 'article',
-    status: 'published',
-    createdAt: new Date('2023-10-26'),
+    status: 'done',
+    createdAt: new Date('2023-10-26').toISOString(),
     keywords: ['AI', 'Deep Learning', 'Guide'],
+    val: 8,
   },
   {
     id: '2',
-    title: 'Cloudflare Workers Architecture',
+    name: 'Cloudflare Workers Architecture',
     type: 'guide',
-    status: 'published',
-    createdAt: new Date('2023-11-15'),
+    status: 'done',
+    createdAt: new Date('2023-11-15').toISOString(),
     keywords: ['Cloudflare', 'Serverless', 'Architecture'],
+    val: 8,
   },
   {
     id: '3',
-    title: 'UX Research Methods',
+    name: 'UX Research Methods',
     type: 'template',
-    status: 'draft',
-    createdAt: new Date('2024-01-05'),
+    status: 'in_progress',
+    createdAt: new Date('2024-01-05').toISOString(),
     keywords: ['UX', 'Research', 'Design'],
+    val: 7,
   },
   {
     id: '4',
-    title: 'React State Management Snippet',
+    name: 'React State Management Snippet',
     type: 'code',
-    status: 'published',
-    createdAt: new Date('2023-09-01'),
+    status: 'backlog',
+    createdAt: new Date('2023-09-01').toISOString(),
     keywords: ['React', 'JavaScript', 'Zustand'],
+    val: 6,
   },
   {
     id: '5',
-    title: 'AI Project Ideas',
+    name: 'AI Project Ideas',
     type: 'collection',
-    status: 'draft',
-    createdAt: new Date('2024-02-20'),
+    status: 'idea',
+    createdAt: new Date('2024-02-20').toISOString(),
     keywords: ['AI', 'Ideas', 'Collection'],
+    val: 9,
   },
 ];
-export const mockUser = {
-  name: 'Alex Turing',
-  email: 'alex.turing@example.com',
-  avatarUrl: 'https://i.pravatar.cc/150?u=alex-turing',
-};
-export const mockStats = {
-  totalNodes: 14,
-  contentItems: 5,
-  connections: 15,
-  avgConnections: 2.1,
-  contentByType: {
-    Articles: 1,
-    Guides: 1,
-    Templates: 1,
-    Code: 1,
-    Collections: 1,
-  },
-};
 export const mockRoadmap = [
   {
     id: '1',

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Settings, Bell, Palette, User, Shield } from 'lucide-react';
+import { Settings, Bell, Palette, User } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,9 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { useCortexStore } from '@/stores/useCortexStore';
+import { useAppStore } from '@/stores/useAppStore';
 export function SettingsPage() {
-  const user = useCortexStore(s => s.user);
+  const user = useAppStore(s => s.user);
   return (
     <div className="h-full flex flex-col p-4 md:p-6 lg:p-8 overflow-y-auto">
       <motion.div

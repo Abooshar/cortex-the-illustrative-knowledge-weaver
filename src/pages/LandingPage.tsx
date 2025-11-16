@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { cn } from '@/lib/utils';
+import { InteractiveShowcase } from '@/components/InteractiveShowcase';
 const featureCards = [
   { icon: <BrainCircuit className="w-8 h-8 text-cortex-primary" />, title: 'Build Your Second Brain', description: 'Visually map your thoughts, projects, and ideas. See the bigger picture and uncover novel connections.' },
   { icon: <Zap className="w-8 h-8 text-cortex-primary" />, title: 'Instant AI Recall', description: 'Query your entire knowledge base with natural language. Get answers, not just search results.' },
@@ -53,7 +54,7 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-cortex-primary flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cortex-primary to-purple-500 flex items-center justify-center">
                 <BrainCircuit className="w-5 h-5 text-white" />
               </div>
               <h1 className="text-xl font-display font-bold">Cortex</h1>
@@ -77,7 +78,7 @@ export function LandingPage() {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
               <h1 className="text-5xl md:text-7xl font-display font-bold text-balance leading-tight">
-                Your Second Brain, Visualized.
+                Your Second Brain, <span className="text-transparent bg-clip-text bg-gradient-to-r from-cortex-primary to-purple-500">Visualized.</span>
               </h1>
               <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
                 Cortex connects your ideas into a beautiful, explorable neural network. Stop searching, start discovering.
@@ -90,17 +91,23 @@ export function LandingPage() {
             </motion.div>
           </div>
         </section>
-        {/* Features Section */}
+        {/* Interactive Showcase Section */}
         <section className="py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center">
-              <h2 className="text-4xl font-display font-bold">A New Dimension of Thought</h2>
-              <p className="mt-4 text-lg text-muted-foreground">Go beyond linear notes. Think in networks.</p>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center mb-12">
+                    <h2 className="text-4xl font-display font-bold">A New Dimension of Thought</h2>
+                    <p className="mt-4 text-lg text-muted-foreground">Go beyond linear notes. Think in networks.</p>
+                </div>
+                <InteractiveShowcase />
             </div>
+        </section>
+        {/* Features Section */}
+        <section className="py-20 bg-muted/50 dark:bg-white/5">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
               {featureCards.map((feature, i) => (
                 <motion.div key={feature.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: i * 0.1 }} viewport={{ once: true }}>
-                  <Card className="h-full text-center p-6 border-border/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <Card className="h-full text-center p-6 border-border/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 bg-background">
                     <div className="flex justify-center mb-4">{feature.icon}</div>
                     <h3 className="text-xl font-bold font-sans">{feature.title}</h3>
                     <p className="mt-2 text-muted-foreground">{feature.description}</p>
@@ -111,7 +118,7 @@ export function LandingPage() {
           </div>
         </section>
         {/* Pricing Section */}
-        <section id="pricing" className="py-20 bg-muted/50 dark:bg-white/5">
+        <section id="pricing" className="py-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center">
                     <h2 className="text-4xl font-display font-bold">Find the Plan for Your Brain</h2>
@@ -150,7 +157,7 @@ export function LandingPage() {
             </div>
         </section>
         {/* Testimonials Section */}
-        <section className="py-20">
+        <section className="py-20 bg-muted/50 dark:bg-white/5">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <h2 className="text-4xl font-display font-bold">Loved by Thinkers Everywhere</h2>
@@ -158,7 +165,7 @@ export function LandingPage() {
             <div className="mt-12 grid gap-8 md:grid-cols-1 lg:grid-cols-3">
               {testimonials.map((testimonial, i) => (
                  <motion.div key={testimonial.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: i * 0.1 }} viewport={{ once: true }}>
-                    <Card className="h-full p-6 border-border/50">
+                    <Card className="h-full p-6 border-border/50 bg-background">
                         <CardContent className="p-0">
                         <p className="italic">"{testimonial.quote}"</p>
                         <div className="mt-4 font-semibold">{testimonial.name}</div>
@@ -171,7 +178,7 @@ export function LandingPage() {
           </div>
         </section>
         {/* FAQ Section */}
-        <section className="py-20 bg-muted/50 dark:bg-white/5">
+        <section className="py-20">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <h2 className="text-4xl font-display font-bold">Frequently Asked Questions</h2>

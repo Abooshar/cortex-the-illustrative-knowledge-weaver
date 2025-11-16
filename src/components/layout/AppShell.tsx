@@ -1,8 +1,8 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
-import { useCortexStore } from "@/stores/useCortexStore";
+import { useAppStore } from "@/stores/useAppStore";
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = useCortexStore(state => state.isAuthenticated);
+  const isAuthenticated = useAppStore(state => state.isAuthenticated);
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
