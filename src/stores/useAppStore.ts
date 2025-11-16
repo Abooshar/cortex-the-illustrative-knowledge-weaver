@@ -149,7 +149,9 @@ export const useAppStore = create<AppState>()(
     },
     deleteLink: (sourceId, targetId) => {
       const { graph, updateGraph } = get();
-      const newLinks = graph.links.filter(l => !(l.source === sourceId && l.target === targetId));
+      const newLinks = graph.links.filter(
+        l => !((l.source === sourceId && l.target === targetId) || (l.source === targetId && l.target === sourceId))
+      );
       const newGraph = { ...graph, links: newLinks };
       updateGraph(newGraph);
     },
