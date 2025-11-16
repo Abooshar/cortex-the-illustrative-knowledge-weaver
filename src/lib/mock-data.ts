@@ -1,106 +1,105 @@
-import type { KnowledgeNode } from '@/types/knowledge';
+import type { KnowledgeNode } from "../types/knowledge";
 export const graphData = {
   nodes: [
-    { id: 'AI', group: 1, val: 10 },
-    { id: 'Machine Learning', group: 1, val: 8 },
-    { id: 'Deep Learning', group: 1, val: 6 },
-    { id: 'Neural Networks', group: 1, val: 6 },
-    { id: 'Programming', group: 2, val: 8 },
-    { id: 'Python', group: 2, val: 6 },
-    { id: 'JavaScript', group: 2, val: 6 },
-    { id: 'React', group: 2, val: 4 },
-    { id: 'Design', group: 3, val: 8 },
-    { id: 'UI/UX', group: 3, val: 6 },
-    { id: 'Figma', group: 3, val: 4 },
-    { id: 'Cloud Computing', group: 4, val: 8 },
-    { id: 'Cloudflare', group: 4, val: 6 },
-    { id: 'Serverless', group: 4, val: 4 },
-  ],
+  { id: 'AI', group: 1, val: 10 },
+  { id: 'Machine Learning', group: 1, val: 8 },
+  { id: 'Deep Learning', group: 1, val: 6 },
+  { id: 'Neural Networks', group: 1, val: 6 },
+  { id: 'Programming', group: 2, val: 8 },
+  { id: 'Python', group: 2, val: 6 },
+  { id: 'JavaScript', group: 2, val: 6 },
+  { id: 'React', group: 2, val: 4 },
+  { id: 'Design', group: 3, val: 8 },
+  { id: 'UI/UX', group: 3, val: 6 },
+  { id: 'Figma', group: 3, val: 4 },
+  { id: 'Cloud Computing', group: 4, val: 8 },
+  { id: 'Cloudflare', group: 4, val: 6 },
+  { id: 'Serverless', group: 4, val: 4 }],
+
   links: [
-    { source: 'AI', target: 'Machine Learning' },
-    { source: 'Machine Learning', target: 'Deep Learning' },
-    { source: 'Deep Learning', target: 'Neural Networks' },
-    { source: 'AI', target: 'Programming' },
-    { source: 'Programming', target: 'Python' },
-    { source: 'Programming', target: 'JavaScript' },
-    { source: 'JavaScript', target: 'React' },
-    { source: 'Machine Learning', target: 'Python' },
-    { source: 'Design', target: 'UI/UX' },
-    { source: 'UI/UX', target: 'Figma' },
-    { source: 'React', target: 'UI/UX' },
-    { source: 'Cloud Computing', target: 'Serverless' },
-    { source: 'Cloud Computing', target: 'Cloudflare' },
-    { source: 'Serverless', target: 'Cloudflare' },
-    { source: 'Programming', target: 'Cloud Computing' },
-  ],
+  { source: 'AI', target: 'Machine Learning' },
+  { source: 'Machine Learning', target: 'Deep Learning' },
+  { source: 'Deep Learning', target: 'Neural Networks' },
+  { source: 'AI', target: 'Programming' },
+  { source: 'Programming', target: 'Python' },
+  { source: 'Programming', target: 'JavaScript' },
+  { source: 'JavaScript', target: 'React' },
+  { source: 'Machine Learning', target: 'Python' },
+  { source: 'Design', target: 'UI/UX' },
+  { source: 'UI/UX', target: 'Figma' },
+  { source: 'React', target: 'UI/UX' },
+  { source: 'Cloud Computing', target: 'Serverless' },
+  { source: 'Cloud Computing', target: 'Cloudflare' },
+  { source: 'Serverless', target: 'Cloudflare' },
+  { source: 'Programming', target: 'Cloud Computing' }]
+
 };
 export const cortexContent: KnowledgeNode[] = [
-  {
-    id: '1',
-    name: 'Intro to Neural Networks',
-    type: 'article',
-    status: 'done',
-    createdAt: new Date('2023-10-26').toISOString(),
-    keywords: ['AI', 'Deep Learning', 'Guide'],
-    val: 8,
-  },
-  {
-    id: '2',
-    name: 'Cloudflare Workers Architecture',
-    type: 'guide',
-    status: 'done',
-    createdAt: new Date('2023-11-15').toISOString(),
-    keywords: ['Cloudflare', 'Serverless', 'Architecture'],
-    val: 8,
-  },
-  {
-    id: '3',
-    name: 'UX Research Methods',
-    type: 'template',
-    status: 'in_progress',
-    createdAt: new Date('2024-01-05').toISOString(),
-    keywords: ['UX', 'Research', 'Design'],
-    val: 7,
-  },
-  {
-    id: '4',
-    name: 'React State Management Snippet',
-    type: 'code',
-    status: 'backlog',
-    createdAt: new Date('2023-09-01').toISOString(),
-    keywords: ['React', 'JavaScript', 'Zustand'],
-    val: 6,
-  },
-  {
-    id: '5',
-    name: 'AI Project Ideas',
-    type: 'collection',
-    status: 'idea',
-    createdAt: new Date('2024-02-20').toISOString(),
-    keywords: ['AI', 'Ideas', 'Collection'],
-    val: 9,
-  },
-];
+{
+  id: '1',
+  name: 'Intro to Neural Networks',
+  type: 'article',
+  status: 'done',
+  createdAt: new Date('2023-10-26').toISOString(),
+  keywords: ['AI', 'Deep Learning', 'Guide'],
+  val: 8
+},
+{
+  id: '2',
+  name: 'Cloudflare Workers Architecture',
+  type: 'guide',
+  status: 'done',
+  createdAt: new Date('2023-11-15').toISOString(),
+  keywords: ['Cloudflare', 'Serverless', 'Architecture'],
+  val: 8
+},
+{
+  id: '3',
+  name: 'UX Research Methods',
+  type: 'template',
+  status: 'in_progress',
+  createdAt: new Date('2024-01-05').toISOString(),
+  keywords: ['UX', 'Research', 'Design'],
+  val: 7
+},
+{
+  id: '4',
+  name: 'React State Management Snippet',
+  type: 'code',
+  status: 'backlog',
+  createdAt: new Date('2023-09-01').toISOString(),
+  keywords: ['React', 'JavaScript', 'Zustand'],
+  val: 6
+},
+{
+  id: '5',
+  name: 'AI Project Ideas',
+  type: 'collection',
+  status: 'idea',
+  createdAt: new Date('2024-02-20').toISOString(),
+  keywords: ['AI', 'Ideas', 'Collection'],
+  val: 9
+}];
+
 export const mockRoadmap = [
-  {
-    id: '1',
-    title: 'Q3: Content Import Feature',
-    description: 'Allow importing from Markdown and Notion.',
-    status: 'In Progress',
-    progress: 40,
-  },
-  {
-    id: '2',
-    title: 'Q2: Advanced Search Filters',
-    description: 'Filter content by type, date, and keywords.',
-    status: 'Completed',
-    progress: 100,
-  },
-  {
-    id: '3',
-    title: 'Q3: Collaborative Spaces',
-    description: 'Share and edit knowledge graphs with your team.',
-    status: 'In Progress',
-    progress: 15,
-  },
-];
+{
+  id: '1',
+  title: 'Q3: Content Import Feature',
+  description: 'Allow importing from Markdown and Notion.',
+  status: 'In Progress',
+  progress: 40
+},
+{
+  id: '2',
+  title: 'Q2: Advanced Search Filters',
+  description: 'Filter content by type, date, and keywords.',
+  status: 'Completed',
+  progress: 100
+},
+{
+  id: '3',
+  title: 'Q3: Collaborative Spaces',
+  description: 'Share and edit knowledge graphs with your team.',
+  status: 'In Progress',
+  progress: 15
+}];
